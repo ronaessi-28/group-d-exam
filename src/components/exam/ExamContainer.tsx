@@ -122,7 +122,7 @@ export const ExamContainer: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-background exam-mode">
+    <div className="h-screen bg-background exam-mode overflow-hidden">
       <ExamHeader
         timeRemaining={state.timeRemaining}
         onToggleSidebar={() => setIsSidebarOpen(!isSidebarOpen)}
@@ -130,7 +130,7 @@ export const ExamContainer: React.FC = () => {
         violations={state.violations}
       />
 
-      <div className="flex min-h-[calc(100vh-60px)]">
+      <div className="flex h-[calc(100vh-60px)]">
         {/* Sidebar - Question Panel */}
         <aside
           className={cn(
@@ -161,7 +161,7 @@ export const ExamContainer: React.FC = () => {
         )}
 
         {/* Main Content - Question Display */}
-        <main className="flex-1 p-4 lg:p-6">
+        <main className="flex-1 p-2 md:p-4 lg:p-6 overflow-hidden">
           <QuestionDisplay
             question={currentQuestion}
             questionIndex={state.currentQuestion}

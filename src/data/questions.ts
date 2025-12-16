@@ -1,7 +1,9 @@
 export interface Question {
   id: number;
   question: string;
+  questionHindi?: string;
   options: string[];
+  optionsHindi?: string[];
   correctOption: number;
 }
 
