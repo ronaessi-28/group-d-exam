@@ -37,7 +37,7 @@
     --radius: 0.625rem;
 
     /* Custom exam colors */
-    --answered: 142 71% 45%;
+    --answered: 142 60% 55%;
     --answered-foreground: 0 0% 100%;
     --unattempted: 0 72% 55%;
     --unattempted-foreground: 0 0% 100%;
@@ -96,7 +96,7 @@
     --ring: 168 70% 45%;
 
     /* Custom exam colors - dark */
-    --answered: 142 60% 40%;
+    --answered: 142 55% 50%;
     --answered-foreground: 0 0% 100%;
     --unattempted: 0 60% 50%;
     --unattempted-foreground: 0 0% 100%;
