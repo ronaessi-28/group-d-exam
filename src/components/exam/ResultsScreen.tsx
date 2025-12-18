@@ -1,9 +1,10 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { ExamResult } from '@/types/exam';
 import { Question } from '@/data/questions';
-import { Trophy, Target, XCircle, MinusCircle, RefreshCw, CheckCircle, Download, TrendingDown } from 'lucide-react';
+import { Trophy, Target, XCircle, MinusCircle, RefreshCw, CheckCircle, Download, Clock, ChevronDown, ChevronUp } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { exportResultsToPDF } from '@/utils/pdfExport';
+import { ScrollArea } from '@/components/ui/scroll-area';
 
 interface ResultsScreenProps {
   result: ExamResult;
@@ -11,16 +12,28 @@ interface ResultsScreenProps {
   questions: Question[];
   answers: Record<number, number>;
   attemptsRemaining: number;
+  timeSpentPerQuestion: Record<number, number>;
 }
+
+const formatTime = (seconds: number) => {
+  if (seconds < 60) return `${seconds}s`;
+  const mins = Math.floor(seconds / 60);
+  const secs = seconds % 60;
+  return `${mins}m ${secs}s`;
+};
 
 export const ResultsScreen: React.FC<ResultsScreenProps> = ({ 
   result, 
   onRetake, 
   questions, 
   answers,
-  attemptsRemaining 
+  attemptsRemaining,
+  timeSpentPerQuestion 
 }) => {
+  const [showTimeDetails, setShowTimeDetails] = useState(false);
+
   const getGrade = () => {
+    if (result.finalScore < 0) return { grade: 'F', color: 'text-destructive' };
     if (result.percentage >= 90) return { grade: 'A+', color: 'text-answered' };
     if (result.percentage >= 80) return { grade: 'A', color: 'text-answered' };
     if (result.percentage >= 70) return { grade: 'B', color: 'text-primary' };
@@ -32,8 +45,10 @@ export const ResultsScreen: React.FC<ResultsScreenProps> = ({
   const { grade, color } = getGrade();
 
   const handleDownload = () => {
-    exportResultsToPDF({ result, questions, answers });
+    exportResultsToPDF({ result, questions, answers, timeSpentPerQuestion });
   };
+
+  const totalTimeSpent = Object.values(timeSpentPerQuestion).reduce((a, b) => a + b, 0);
 
   return (
     <div className="min-h-screen bg-background flex items-center justify-center p-4">
@@ -55,14 +70,18 @@ export const ResultsScreen: React.FC<ResultsScreenProps> = ({
               <div className={`text-6xl md:text-7xl font-bold ${color} mb-2`}>
                 {grade}
               </div>
-              <div className="text-3xl font-semibold text-foreground">
+              <div className={`text-3xl font-semibold ${result.finalScore < 0 ? 'text-destructive' : 'text-foreground'}`}>
                 {result.finalScore.toFixed(2)} / {result.totalQuestions}
               </div>
               <div className="text-lg text-muted-foreground">
                 {result.percentage.toFixed(1)}%
               </div>
               <div className="text-sm text-muted-foreground mt-2">
-                (Correct: {result.correct} | Negative: -{result.negativeMarks.toFixed(2)})
+                (Correct: +{result.correct} | Negative: -{result.negativeMarks.toFixed(2)})
+              </div>
+              <div className="flex items-center justify-center gap-2 mt-3 text-sm text-muted-foreground">
+                <Clock className="w-4 h-4" />
+                Total time: {formatTime(totalTimeSpent)}
               </div>
             </div>
 
@@ -73,7 +92,7 @@ export const ResultsScreen: React.FC<ResultsScreenProps> = ({
                   <CheckCircle className="w-5 h-5" />
                   <span className="font-medium">Correct</span>
                 </div>
-                <div className="text-2xl font-bold text-foreground">{result.correct}</div>
+                <div className="text-2xl font-bold text-foreground">+{result.correct}</div>
               </div>
 
               <div className="p-4 bg-destructive/10 rounded-xl border border-destructive/20">
@@ -100,6 +119,58 @@ export const ResultsScreen: React.FC<ResultsScreenProps> = ({
                 </div>
                 <div className="text-2xl font-bold text-foreground">{result.attempted}</div>
               </div>
+            </div>
+
+            {/* Time per Question Section */}
+            <div className="border border-border rounded-xl overflow-hidden">
+              <button
+                onClick={() => setShowTimeDetails(!showTimeDetails)}
+                className="w-full p-4 flex items-center justify-between bg-muted/30 hover:bg-muted/50 transition-colors"
+              >
+                <div className="flex items-center gap-2">
+                  <Clock className="w-5 h-5 text-primary" />
+                  <span className="font-medium">Time Spent per Question</span>
+                </div>
+                {showTimeDetails ? <ChevronUp className="w-5 h-5" /> : <ChevronDown className="w-5 h-5" />}
+              </button>
+              
+              {showTimeDetails && (
+                <ScrollArea className="h-64">
+                  <div className="p-4 space-y-2">
+                    {questions.map((q, index) => {
+                      const timeSpent = timeSpentPerQuestion[index] || 0;
+                      const userAnswer = answers[index];
+                      const isCorrect = userAnswer === q.correctOption;
+                      const isUnattempted = userAnswer === undefined;
+                      
+                      return (
+                        <div 
+                          key={index}
+                          className={`flex items-center justify-between p-3 rounded-lg text-sm ${
+                            isUnattempted 
+                              ? 'bg-muted/30' 
+                              : isCorrect 
+                                ? 'bg-answered/10' 
+                                : 'bg-destructive/10'
+                          }`}
+                        >
+                          <div className="flex items-center gap-2">
+                            <span className="font-medium">Q{index + 1}</span>
+                            {isUnattempted ? (
+                              <span className="text-xs text-muted-foreground">(Not attempted)</span>
+                            ) : isCorrect ? (
+                              <CheckCircle className="w-4 h-4 text-answered" />
+                            ) : (
+                              <XCircle className="w-4 h-4 text-destructive" />
+                            )}
+                          </div>
+                          <span className="text-muted-foreground">{formatTime(timeSpent)}</span>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </ScrollArea>
+              )}
             </div>
 
             {/* Download Button */}

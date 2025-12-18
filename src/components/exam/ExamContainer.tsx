@@ -128,6 +128,7 @@ export const ExamContainer: React.FC = () => {
         questions={questions}
         answers={state.answers}
         attemptsRemaining={attemptsRemaining}
+        timeSpentPerQuestion={state.timeSpentPerQuestion}
       />
     );
   }

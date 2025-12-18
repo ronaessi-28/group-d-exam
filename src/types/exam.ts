@@ -10,6 +10,8 @@ export interface ExamState {
   isFullscreen: boolean;
   cameraEnabled: boolean;
   micEnabled: boolean;
+  timeSpentPerQuestion: Record<number, number>;
+  lastQuestionChangeTime: number;
 }
 
 export interface ExamResult {
