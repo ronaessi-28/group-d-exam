@@ -1,14 +1,25 @@
 import React from 'react';
 import { ExamResult } from '@/types/exam';
-import { Trophy, Target, XCircle, MinusCircle, RefreshCw, CheckCircle } from 'lucide-react';
+import { Question } from '@/data/questions';
+import { Trophy, Target, XCircle, MinusCircle, RefreshCw, CheckCircle, Download } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { exportResultsToPDF } from '@/utils/pdfExport';
 
 interface ResultsScreenProps {
   result: ExamResult;
   onRetake: () => void;
+  questions: Question[];
+  answers: Record<number, number>;
+  attemptsRemaining: number;
 }
 
-export const ResultsScreen: React.FC<ResultsScreenProps> = ({ result, onRetake }) => {
+export const ResultsScreen: React.FC<ResultsScreenProps> = ({ 
+  result, 
+  onRetake, 
+  questions, 
+  answers,
+  attemptsRemaining 
+}) => {
   const getGrade = () => {
     if (result.percentage >= 90) return { grade: 'A+', color: 'text-answered' };
     if (result.percentage >= 80) return { grade: 'A', color: 'text-answered' };
@@ -19,6 +30,10 @@ export const ResultsScreen: React.FC<ResultsScreenProps> = ({ result, onRetake }
   };
 
   const { grade, color } = getGrade();
+
+  const handleDownload = () => {
+    exportResultsToPDF({ result, questions, answers });
+  };
 
   return (
     <div className="min-h-screen bg-background flex items-center justify-center p-4">
@@ -83,14 +98,28 @@ export const ResultsScreen: React.FC<ResultsScreenProps> = ({ result, onRetake }
               </div>
             </div>
 
+            {/* Download Button */}
+            <Button
+              onClick={handleDownload}
+              size="lg"
+              variant="outline"
+              className="w-full gap-2"
+            >
+              <Download className="w-4 h-4" />
+              Download Results (PDF)
+            </Button>
+
             {/* Retake Button */}
             <Button
               onClick={onRetake}
               size="lg"
               className="w-full gap-2"
+              disabled={attemptsRemaining <= 0}
             >
               <RefreshCw className="w-4 h-4" />
-              Retake Exam
+              {attemptsRemaining > 0 
+                ? `Retake Exam (${attemptsRemaining} attempts left today)` 
+                : 'No attempts left today'}
             </Button>
           </div>
         </div>
