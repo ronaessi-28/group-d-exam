@@ -9,6 +9,8 @@ interface PermissionsScreenProps {
   cameraGranted: boolean;
   micGranted: boolean;
   onStartExam: () => void;
+  canAttempt: boolean;
+  attemptsRemaining: number;
 }
 
 export const PermissionsScreen: React.FC<PermissionsScreenProps> = ({
@@ -18,6 +20,8 @@ export const PermissionsScreen: React.FC<PermissionsScreenProps> = ({
   cameraGranted,
   micGranted,
   onStartExam,
+  canAttempt,
+  attemptsRemaining,
 }) => {
   const allPermissionsGranted = cameraGranted && micGranted;
 
@@ -46,8 +50,9 @@ export const PermissionsScreen: React.FC<PermissionsScreenProps> = ({
             <div className="w-16 h-16 mx-auto mb-4 bg-primary-foreground/20 rounded-2xl flex items-center justify-center">
               <BookOpen className="w-8 h-8" />
             </div>
-            <h1 className="text-2xl md:text-3xl font-bold mb-2">HSSC Group D Mock Test</h1>
-            <p className="text-primary-foreground/80">90 Questions • 90 Minutes</p>
+            <h1 className="text-2xl md:text-3xl font-bold mb-2">Math Mock Test</h1>
+            <p className="text-primary-foreground/80">100 Questions • 90 Minutes</p>
+            <p className="text-primary-foreground/60 text-sm mt-1">{attemptsRemaining} attempts remaining today</p>
           </div>
 
           {/* Content */}
@@ -147,9 +152,10 @@ export const PermissionsScreen: React.FC<PermissionsScreenProps> = ({
                   onClick={onStartExam}
                   size="lg"
                   className="w-full gap-2 bg-answered hover:bg-answered/90"
+                  disabled={!canAttempt}
                 >
                   <Shield className="w-4 h-4" />
-                  Start Exam
+                  {canAttempt ? 'Start Exam' : 'No attempts left today'}
                 </Button>
               )}
             </div>
