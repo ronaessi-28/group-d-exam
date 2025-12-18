@@ -133,16 +133,7 @@ export const QuestionDisplay: React.FC<QuestionDisplayProps> = ({
           </div>
 
           <div className="flex items-center gap-2">
-            {isLastQuestion ? (
-              <Button
-                size="sm"
-                onClick={onSubmit}
-                className="gap-1 md:gap-2 bg-primary hover:bg-primary/90"
-              >
-                <Send className="w-4 h-4" />
-                Submit
-              </Button>
-            ) : (
+            {!isLastQuestion && (
               <Button
                 size="sm"
                 onClick={onNext}
@@ -152,6 +143,15 @@ export const QuestionDisplay: React.FC<QuestionDisplayProps> = ({
                 <ChevronRight className="w-4 h-4" />
               </Button>
             )}
+            <Button
+              size="sm"
+              onClick={onSubmit}
+              variant={isLastQuestion ? "default" : "outline"}
+              className={`gap-1 md:gap-2 ${isLastQuestion ? 'bg-primary hover:bg-primary/90' : ''}`}
+            >
+              <Send className="w-4 h-4" />
+              Submit
+            </Button>
           </div>
         </div>
       </div>

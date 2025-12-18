@@ -32,7 +32,7 @@ export const ExamHeader: React.FC<ExamHeaderProps> = ({
           </Button>
           <div className="flex items-center gap-2 text-primary-foreground">
             <Shield className="w-5 h-5" />
-            <span className="font-semibold hidden sm:inline">HSSC Group D Mock Test</span>
+            <span className="font-semibold hidden sm:inline">Math Mock Test</span>
             <span className="font-semibold sm:hidden">Mock Test</span>
           </div>
         </div>

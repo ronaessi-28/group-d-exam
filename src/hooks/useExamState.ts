@@ -127,8 +127,10 @@ export const useExamState = () => {
 
     const attempted = Object.keys(state.answers).length;
     const unattempted = questions.length - attempted;
+    const negativeMarks = unattempted * 0.95;
     const score = correct;
-    const percentage = (correct / questions.length) * 100;
+    const finalScore = Math.max(0, score - negativeMarks);
+    const percentage = (finalScore / questions.length) * 100;
 
     return {
       totalQuestions: questions.length,
@@ -138,6 +140,8 @@ export const useExamState = () => {
       unattempted,
       score,
       percentage,
+      negativeMarks,
+      finalScore,
     };
   }, [state.answers]);
 

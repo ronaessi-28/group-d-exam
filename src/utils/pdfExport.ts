@@ -23,13 +23,17 @@ export const exportResultsToPDF = ({ result, questions, answers }: ExportData) =
 
   // Score Summary
   doc.setFontSize(14);
-  doc.text(`Score: ${result.score} / ${result.totalQuestions}`, margin, yPos);
+  doc.text(`Final Score: ${result.finalScore.toFixed(2)} / ${result.totalQuestions}`, margin, yPos);
   yPos += 8;
   doc.text(`Percentage: ${result.percentage.toFixed(1)}%`, margin, yPos);
   yPos += 8;
   doc.setFontSize(11);
   doc.setFont('helvetica', 'normal');
   doc.text(`Correct: ${result.correct} | Incorrect: ${result.incorrect} | Unattempted: ${result.unattempted}`, margin, yPos);
+  yPos += 6;
+  doc.setTextColor(200, 0, 0);
+  doc.text(`Negative Marking: -${result.negativeMarks.toFixed(2)} (0.95 per unattempted question)`, margin, yPos);
+  doc.setTextColor(0);
   yPos += 15;
 
   // Divider
