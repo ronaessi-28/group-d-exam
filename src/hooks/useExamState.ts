@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useRef } from 'react';
 import { ExamState, QuestionStatus, ExamResult } from '@/types/exam';
 import { questions, EXAM_DURATION_MINUTES } from '@/data/questions';
 
@@ -12,10 +12,27 @@ const initialState: ExamState = {
   isFullscreen: false,
   cameraEnabled: false,
   micEnabled: false,
+  timeSpentPerQuestion: {},
+  lastQuestionChangeTime: Date.now(),
 };
 
 export const useExamState = () => {
   const [state, setState] = useState<ExamState>(initialState);
+
+  const updateTimeSpent = useCallback((fromQuestion: number) => {
+    setState(prev => {
+      const now = Date.now();
+      const timeSpent = Math.floor((now - prev.lastQuestionChangeTime) / 1000);
+      return {
+        ...prev,
+        timeSpentPerQuestion: {
+          ...prev.timeSpentPerQuestion,
+          [fromQuestion]: (prev.timeSpentPerQuestion[fromQuestion] || 0) + timeSpent,
+        },
+        lastQuestionChangeTime: now,
+      };
+    });
+  }, []);
 
   const setAnswer = useCallback((questionIndex: number, optionIndex: number) => {
     setState(prev => ({
@@ -43,24 +60,51 @@ export const useExamState = () => {
   }, []);
 
   const goToQuestion = useCallback((index: number) => {
-    setState(prev => ({
-      ...prev,
-      currentQuestion: index,
-    }));
+    setState(prev => {
+      const now = Date.now();
+      const timeSpent = Math.floor((now - prev.lastQuestionChangeTime) / 1000);
+      return {
+        ...prev,
+        timeSpentPerQuestion: {
+          ...prev.timeSpentPerQuestion,
+          [prev.currentQuestion]: (prev.timeSpentPerQuestion[prev.currentQuestion] || 0) + timeSpent,
+        },
+        currentQuestion: index,
+        lastQuestionChangeTime: now,
+      };
+    });
   }, []);
 
   const nextQuestion = useCallback(() => {
-    setState(prev => ({
-      ...prev,
-      currentQuestion: Math.min(prev.currentQuestion + 1, questions.length - 1),
-    }));
+    setState(prev => {
+      const now = Date.now();
+      const timeSpent = Math.floor((now - prev.lastQuestionChangeTime) / 1000);
+      return {
+        ...prev,
+        timeSpentPerQuestion: {
+          ...prev.timeSpentPerQuestion,
+          [prev.currentQuestion]: (prev.timeSpentPerQuestion[prev.currentQuestion] || 0) + timeSpent,
+        },
+        currentQuestion: Math.min(prev.currentQuestion + 1, questions.length - 1),
+        lastQuestionChangeTime: now,
+      };
+    });
   }, []);
 
   const prevQuestion = useCallback(() => {
-    setState(prev => ({
-      ...prev,
-      currentQuestion: Math.max(prev.currentQuestion - 1, 0),
-    }));
+    setState(prev => {
+      const now = Date.now();
+      const timeSpent = Math.floor((now - prev.lastQuestionChangeTime) / 1000);
+      return {
+        ...prev,
+        timeSpentPerQuestion: {
+          ...prev.timeSpentPerQuestion,
+          [prev.currentQuestion]: (prev.timeSpentPerQuestion[prev.currentQuestion] || 0) + timeSpent,
+        },
+        currentQuestion: Math.max(prev.currentQuestion - 1, 0),
+        lastQuestionChangeTime: now,
+      };
+    });
   }, []);
 
   const decrementTime = useCallback(() => {
@@ -71,10 +115,18 @@ export const useExamState = () => {
   }, []);
 
   const submitExam = useCallback(() => {
-    setState(prev => ({
-      ...prev,
-      isSubmitted: true,
-    }));
+    setState(prev => {
+      const now = Date.now();
+      const timeSpent = Math.floor((now - prev.lastQuestionChangeTime) / 1000);
+      return {
+        ...prev,
+        timeSpentPerQuestion: {
+          ...prev.timeSpentPerQuestion,
+          [prev.currentQuestion]: (prev.timeSpentPerQuestion[prev.currentQuestion] || 0) + timeSpent,
+        },
+        isSubmitted: true,
+      };
+    });
   }, []);
 
   const addViolation = useCallback(() => {
@@ -129,8 +181,8 @@ export const useExamState = () => {
     const unattempted = questions.length - attempted;
     const negativeMarks = unattempted * 0.95;
     const score = correct;
-    const finalScore = Math.max(0, score - negativeMarks);
-    const percentage = (finalScore / questions.length) * 100;
+    const finalScore = score - negativeMarks; // Allow negative scores
+    const percentage = Math.max(0, (finalScore / questions.length) * 100);
 
     return {
       totalQuestions: questions.length,
@@ -146,7 +198,11 @@ export const useExamState = () => {
   }, [state.answers]);
 
   const resetExam = useCallback(() => {
-    setState(initialState);
+    setState({
+      ...initialState,
+      markedForReview: new Set(),
+      lastQuestionChangeTime: Date.now(),
+    });
   }, []);
 
   return {
