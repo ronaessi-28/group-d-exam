@@ -20,4 +20,6 @@ export interface ExamResult {
   unattempted: number;
   score: number;
   percentage: number;
+  negativeMarks: number;
+  finalScore: number;
 }

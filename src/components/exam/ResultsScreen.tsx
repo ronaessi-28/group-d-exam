@@ -1,7 +1,7 @@
 import React from 'react';
 import { ExamResult } from '@/types/exam';
 import { Question } from '@/data/questions';
-import { Trophy, Target, XCircle, MinusCircle, RefreshCw, CheckCircle, Download } from 'lucide-react';
+import { Trophy, Target, XCircle, MinusCircle, RefreshCw, CheckCircle, Download, TrendingDown } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { exportResultsToPDF } from '@/utils/pdfExport';
 
@@ -56,10 +56,13 @@ export const ResultsScreen: React.FC<ResultsScreenProps> = ({
                 {grade}
               </div>
               <div className="text-3xl font-semibold text-foreground">
-                {result.score} / {result.totalQuestions}
+                {result.finalScore.toFixed(2)} / {result.totalQuestions}
               </div>
               <div className="text-lg text-muted-foreground">
                 {result.percentage.toFixed(1)}%
+              </div>
+              <div className="text-sm text-muted-foreground mt-2">
+                (Correct: {result.correct} | Negative: -{result.negativeMarks.toFixed(2)})
               </div>
             </div>
 
@@ -81,12 +84,13 @@ export const ResultsScreen: React.FC<ResultsScreenProps> = ({
                 <div className="text-2xl font-bold text-foreground">{result.incorrect}</div>
               </div>
 
-              <div className="p-4 bg-muted/50 rounded-xl border border-border">
-                <div className="flex items-center gap-2 text-muted-foreground mb-2">
+              <div className="p-4 bg-destructive/5 rounded-xl border border-destructive/10">
+                <div className="flex items-center gap-2 text-destructive/70 mb-2">
                   <MinusCircle className="w-5 h-5" />
                   <span className="font-medium">Unattempted</span>
                 </div>
                 <div className="text-2xl font-bold text-foreground">{result.unattempted}</div>
+                <div className="text-xs text-destructive">-{result.negativeMarks.toFixed(2)} marks</div>
               </div>
 
               <div className="p-4 bg-primary/10 rounded-xl border border-primary/20">
