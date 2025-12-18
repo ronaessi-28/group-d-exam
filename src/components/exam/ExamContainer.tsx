@@ -3,6 +3,7 @@ import { questions } from '@/data/questions';
 import { useExamState } from '@/hooks/useExamState';
 import { useProctoring } from '@/hooks/useProctoring';
 import { useMediaPermissions } from '@/hooks/useMediaPermissions';
+import { useAttemptLimit } from '@/hooks/useAttemptLimit';
 import { PermissionsScreen } from './PermissionsScreen';
 import { ResultsScreen } from './ResultsScreen';
 import { ExamHeader } from './ExamHeader';
@@ -18,6 +19,8 @@ export const ExamContainer: React.FC = () => {
   const [phase, setPhase] = useState<ExamPhase>('permissions');
   const [showSubmitDialog, setShowSubmitDialog] = useState(false);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+
+  const { attemptsRemaining, canAttempt, recordAttempt, checkAttempts } = useAttemptLimit();
 
   const {
     state,
@@ -76,11 +79,13 @@ export const ExamContainer: React.FC = () => {
   }, [state.timeRemaining, phase, state.isSubmitted, handleForceSubmit]);
 
   const handleStartExam = useCallback(async () => {
+    if (!canAttempt) return;
+    recordAttempt();
     const fullscreenSuccess = await requestFullscreen();
     if (fullscreenSuccess) {
       setPhase('exam');
     }
-  }, [requestFullscreen]);
+  }, [requestFullscreen, canAttempt, recordAttempt]);
 
   const handleConfirmSubmit = useCallback(() => {
     setShowSubmitDialog(false);
@@ -91,9 +96,10 @@ export const ExamContainer: React.FC = () => {
   }, [submitExam, exitFullscreen, stopStream]);
 
   const handleRetake = useCallback(() => {
+    checkAttempts();
     resetExam();
     setPhase('permissions');
-  }, [resetExam]);
+  }, [resetExam, checkAttempts]);
 
   const stats = getStats();
   const currentQuestion = questions[state.currentQuestion];
@@ -108,6 +114,8 @@ export const ExamContainer: React.FC = () => {
         cameraGranted={cameraGranted}
         micGranted={micGranted}
         onStartExam={handleStartExam}
+        canAttempt={canAttempt}
+        attemptsRemaining={attemptsRemaining}
       />
     );
   }
@@ -117,6 +125,9 @@ export const ExamContainer: React.FC = () => {
       <ResultsScreen
         result={calculateResult()}
         onRetake={handleRetake}
+        questions={questions}
+        answers={state.answers}
+        attemptsRemaining={attemptsRemaining}
       />
     );
   }
