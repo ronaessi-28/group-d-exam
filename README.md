@@ -9,7 +9,7 @@ A modern, fast, and responsive web application designed to help students prepare
 - **Modern UI:** Clean and intuitive interface built with Shadcn UI and Tailwind CSS.
 - **Performance:** Blazing fast performance powered by Vite and Bun.
 - **Type Safety:** Built entirely with TypeScript for a robust developer experience.
-  
+   
 ## 🛠️ Tech Stack
 - **Framework:** [React](https://reactjs.org/) (Vite)
 - **Language:** [TypeScript](https://www.typescriptlang.org/)
