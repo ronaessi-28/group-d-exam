@@ -12,7 +12,7 @@ A modern, fast, and responsive web application designed to help students prepare
    
 ## 🛠️ Tech Stack
 - **Framework:** [React](https://reactjs.org/) (Vite)
-- **Language:** [TypeScript](https://www.typescriptlang.org/)
+- **Language:** [TypeScript](https://www.typescriptlang.org/) 
 - **Styling:** [Tailwind CSS](https://tailwindcss.com/)
 - **UI Components:** [Shadcn UI](https://ui.shadcn.com/)
 - **Runtime/Package Manager:** [Bun](https://bun.sh/)
