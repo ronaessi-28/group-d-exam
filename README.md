@@ -32,7 +32,7 @@ Make sure you have [Bun](https://bun.sh/) installed on your machine.
    
 3. **Start the development server:**
    
-4. **Build for production:**
+4. **Build for production:** 
 
    
 ## 📂 Project Structure
